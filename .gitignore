@@ -33,9 +33,14 @@ Thumbs.db
 # IDE & AI Assistant configs
 .agents/
 */.agents/
+.claude
 .claude/
+*/.claude
 */.claude/
+CLAUDE.md
+*/CLAUDE.md
 .cursor/
 */.cursor/
 .devin/
 */.devin/
+
