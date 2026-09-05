@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_34-838fc414512703813af1974f35835308f8624c54",
+  "solcVersion": "0.8.34",
+  "solcLongVersion": "0.8.34+commit.80d5c536",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.15.0"
+  },
+  "userSourceNameMap": {
+    "contracts/ChainSphere.sol": "project/contracts/ChainSphere.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "osaka",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/ChainSphere.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract ChainSphere {\n    struct ContentRecord {\n        string contentHash; // SHA-256 hash generated off-chain\n        address creator;    // Wallet address of the content creator\n        uint256 timestamp;  // Block timestamp when registered\n    }\n\n    // Mapping from Post ID to Content Record\n    mapping(string => ContentRecord) private _contentRegistry;\n\n    // Events for application indexing (Kafka / Frontend listening)\n    event ContentRegistered(string indexed postId, string contentHash, address indexed creator, uint256 timestamp);\n    event TipSent(address indexed sender, address indexed creator, uint256 amount, uint256 timestamp);\n\n    /// @notice Registers content hash on-chain for proof of authenticity & ownership\n    function registerContent(string memory postId, string memory contentHash) external {\n        require(bytes(_contentRegistry[postId].contentHash).length == 0, \"Post ID already registered\");\n        require(bytes(contentHash).length > 0, \"Invalid content hash\");\n\n        _contentRegistry[postId] = ContentRecord({\n            contentHash: contentHash,\n            creator: msg.sender,\n            timestamp: block.timestamp\n        });\n\n        emit ContentRegistered(postId, contentHash, msg.sender, block.timestamp);\n    }\n\n    /// @notice Verifies whether a given content payload matches the registered on-chain hash\n    function verifyContent(string memory postId, string memory currentContentHash) external view returns (bool isAuthentic, address creator) {\n        ContentRecord memory record = _contentRegistry[postId];\n        require(bytes(record.contentHash).length > 0, \"Post ID not found\");\n\n        bool matches = keccak256(bytes(record.contentHash)) == keccak256(bytes(currentContentHash));\n        return (matches, record.creator);\n    }\n\n    /// @notice Allows users to tip creators directly using native blockchain tokens (ETH / Native asset)\n    function tipCreator(address payable creator) external payable {\n        require(msg.value > 0, \"Tip amount must be greater than 0\");\n        require(creator != address(0), \"Invalid creator address\");\n\n        (bool sent, ) = creator.call{value: msg.value}(\"\");\n        require(sent, \"Failed to send tip\");\n\n        emit TipSent(msg.sender, creator, msg.value, block.timestamp);\n    }\n}"
+      }
+    }
+  }
+}
