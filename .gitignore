@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables
+.env
+.env.*
+*/.env
+*/.env.*
+!.env.example
+!*/.env.example
+
+# Build outputs
+dist/
+*/dist/
+bundle/
+*/bundle/
+
+# Hardhat artifacts & cache
+artifacts/
+*/artifacts/
+cache/
+*/cache/
+coverage/
+*/coverage/
+types/
+*/types/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE & AI Assistant configs
+.agents/
+*/.agents/
+.claude/
+*/.claude/
+.cursor/
+*/.cursor/
+.devin/
+*/.devin/
